@@ -32,3 +32,53 @@ jobs:
       - run: dotnet restore
       - run: dotnet build --no-restore -c Release
       - run: dotnet test --no-build -c Release
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'server/**'
+              - '.github/workflows/ci.yml'
+
+  # Driftsätter API:t till Azure App Service när backend-testerna gått igenom.
+  # Inloggningen sker med OIDC: GitHub utfärdar en kortlivad token som Azure litar på via en
+  # federerad identitet, så inga lösenord eller publiceringsprofiler ligger i GitHub.
+  deploy-api:
+    needs: [backend, changes]
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      needs.changes.outputs.server == 'true' && vars.AZURE_WEBAPP_NAME != ''
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.webapp-url }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet publish src/Nis2.Api -c Release -o ${{ runner.temp }}/api
+        working-directory: server
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/webapps-deploy@v3
+        id: deploy
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          package: ${{ runner.temp }}/api
+      # F1 och serverless-databasen kan behöva vakna, därav de generösa omförsöken.
+      - name: Smoke test
+        run: curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors "${{ steps.deploy.outputs.webapp-url }}/health/ready"
