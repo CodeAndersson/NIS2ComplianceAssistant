@@ -1,0 +1,95 @@
+.nis2-app * { box-sizing: border-box; }
+.nis2-app {
+  --bg: #F4EFE6;
+  --bg-elevated: #FBF8F1;
+  --ink: #0F1B2D;
+  --ink-soft: #4A5568;
+  --ink-mute: #8A8578;
+  --rule: #D9D2C2;
+  --rule-soft: #E8E2D3;
+  --accent: #1B3A5C;
+  --accent-warm: #B8732B;
+  --success: #2F5233;
+  --warning: #C9974C;
+  --danger: #8B2635;
+  font-family: 'Geist', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+.nis2-app .display { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.05; }
+.nis2-app .mono { font-family: 'Geist Mono', monospace; font-feature-settings: "tnum"; }
+.nis2-app .smallcaps { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; font-weight: 500; }
+.nis2-app .paragraph-mark { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-style: italic; }
+.nis2-app button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; font-size: inherit; }
+.nis2-app button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.nis2-app .btn-primary {
+  background: var(--ink); color: var(--bg-elevated); padding: 0.85rem 1.6rem;
+  border-radius: 999px; font-weight: 500; font-size: 0.95rem;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+.nis2-app .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+.nis2-app .btn-secondary {
+  background: transparent; color: var(--ink); padding: 0.85rem 1.6rem;
+  border: 1px solid var(--ink); border-radius: 999px; font-weight: 500; font-size: 0.95rem;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.nis2-app .btn-secondary:hover { background: var(--ink); color: var(--bg-elevated); }
+.nis2-app .btn-ghost { color: var(--ink-soft); padding: 0.5rem 0; font-size: 0.9rem; text-decoration: underline; text-decoration-thickness: 0.5px; text-underline-offset: 4px; }
+.nis2-app .btn-ghost:hover { color: var(--ink); }
+.nis2-app .field-radio {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.85rem 1rem; border: 1px solid var(--rule); border-radius: 8px;
+  cursor: pointer; transition: all 0.15s ease; background: var(--bg-elevated);
+}
+.nis2-app .field-radio:hover { border-color: var(--ink-soft); }
+.nis2-app .field-radio.selected { border-color: var(--ink); background: var(--ink); color: var(--bg-elevated); }
+.nis2-app .field-radio input { display: none; }
+.nis2-app select {
+  font-family: inherit; font-size: 1rem; padding: 0.85rem 1rem; width: 100%;
+  border: 1px solid var(--rule); background: var(--bg-elevated); color: var(--ink);
+  border-radius: 8px; appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%230F1B2D' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 1rem center;
+}
+.nis2-app .progress-track { height: 2px; background: var(--rule-soft); position: relative; overflow: hidden; }
+.nis2-app .progress-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--ink); transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.nis2-app .answer-pill {
+  padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.875rem; font-weight: 500;
+  border: 1px solid var(--rule); background: var(--bg-elevated); transition: all 0.15s;
+}
+.nis2-app .answer-pill:hover { border-color: var(--ink-soft); }
+.nis2-app .answer-pill.selected-ja { background: var(--success); color: white; border-color: var(--success); }
+.nis2-app .answer-pill.selected-delvis { background: var(--warning); color: white; border-color: var(--warning); }
+.nis2-app .answer-pill.selected-nej { background: var(--danger); color: white; border-color: var(--danger); }
+.nis2-app .score-bar { height: 6px; background: var(--rule-soft); border-radius: 999px; overflow: hidden; }
+.nis2-app .score-bar-fill { height: 100%; transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); border-radius: 999px; }
+.nis2-app .niva-hog { background: var(--success); }
+.nis2-app .niva-medel { background: var(--warning); }
+.nis2-app .niva-lag { background: var(--danger); }
+.nis2-app .card {
+  background: var(--bg-elevated); border: 1px solid var(--rule); border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+.nis2-app .card:hover { border-color: var(--ink-soft); }
+.nis2-app .timeline {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem; position: relative;
+}
+.nis2-app .timeline-node { position: relative; }
+.nis2-app .timeline-circle {
+  width: 56px; height: 56px; border-radius: 50%; background: var(--bg);
+  border: 1.5px solid var(--ink); display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.25rem; position: relative; z-index: 2;
+}
+.nis2-app .timeline-line {
+  position: absolute; top: 28px; left: 56px; right: -2rem; height: 1px;
+  background: var(--rule); z-index: 1;
+}
+@media (max-width: 720px) { .nis2-app .timeline-line { display: none; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.nis2-app .fade-up { animation: fadeUp 0.4s ease-out backwards; }
+@media (max-width: 720px) { .nis2-app .desktop-only { display: none; } }
+.nis2-app .kallor { margin: -3.5rem 0 4rem; padding: 1.25rem 1.5rem; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.6; }
