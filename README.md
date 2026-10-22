@@ -94,7 +94,7 @@ npm run build      # typkontroll + produktionsbygge
 
 ### Med backend (spara och dela)
 
-Kräver .NET 8 SDK.
+Kräver .NET 10 SDK.
 
 ```bash
 cd server

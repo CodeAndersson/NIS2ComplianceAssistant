@@ -16,8 +16,7 @@ builder.Services.AddApiRateLimiting(builder.Configuration);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<BadHttpRequestExceptionHandler>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>(tags: ["db"]);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 const string FrontendCors = "frontend";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -36,8 +35,9 @@ if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Inbyggd OpenAPI-generering (/openapi/v1.json), visad med Swagger UI på /swagger.
+    app.MapOpenApi();
+    app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "NIS2 API"));
 }
 
 app.UseExceptionHandler();
