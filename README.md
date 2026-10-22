@@ -33,17 +33,21 @@ De NIS2-verktyg som finns på marknaden är internationella, hänvisar inte till
 | Del | Teknik |
 |---|---|
 | Frontend | React 19, TypeScript (strict), Vite |
-| Backend | ASP.NET Core 8 (Web API), Entity Framework Core 8, SQLite |
+| Backend | ASP.NET Core 10 (Web API), Entity Framework Core 10, Azure SQL i produktion, SQLite lokalt |
 | Tester | Vitest (frontend), xUnit + WebApplicationFactory (backend) |
-| CI | GitHub Actions – typkontroll, tester och bygge av både frontend och backend |
+| CI/CD | GitHub Actions – typkontroll, tester och bygge av frontend och backend, driftsättning av API:t till Azure |
+| Drift | Vercel (frontend), Azure App Service + Azure SQL Database (API) |
 
 ```mermaid
 flowchart LR
-    U[Webbläsare] -->|React-app| F[Frontend]
+    U[Webbläsare] -->|React-app| F["Frontend<br/>(Vercel)"]
     F -->|localStorage| L[(Lokalt utkast)]
-    F -->|"REST /api/assessments<br/>(endast vid delning)"| A[ASP.NET Core API]
-    A -->|EF Core| D[(SQLite)]
+    F -->|"REST /api/assessments<br/>(endast vid delning)"| A["ASP.NET Core API<br/>(Azure App Service F1)"]
+    A -->|"EF Core<br/>managed identity"| D[("Azure SQL Database<br/>(gratiserbjudandet)")]
+    G[GitHub Actions] -->|"OIDC, vid push till main"| A
 ```
+
+Lokalt och i testerna används SQLite i stället för Azure SQL – vilken databas som används styrs av `Database:Provider`.
 
 ### Struktur
 
@@ -54,7 +58,7 @@ server/
 │   ├── Services/      # AssessmentService – affärslogik och databasåtkomst
 │   ├── Domain/        # Entiteter, sektorer och ScopeAssessor (omfattningsbedömning)
 │   ├── Contracts/     # Request/response-DTO:er och validering
-│   └── Data/          # AppDbContext och EF Core-migreringar
+│   └── Data/          # AppDbContext, en subklass per databas och deras EF Core-migreringar
 └── tests/Nis2.Api.Tests/   # Enhetstester och integrationstester mot hela API:t
 src/
 ├── data/          # Lagdata: sektorer, säkerhetsåtgärdsområden, incidentfrister
@@ -75,9 +79,10 @@ Affärslogiken (`bedomOmfattning`, `beraknaScore`, `prioriteradeLuckor`) är ren
 | `GET` | `/api/assessments/{id}` | Hämtar en bedömning inklusive serverns omfattningsbedömning |
 | `PUT` | `/api/assessments/{id}` | Ersätter uppgifter och svar |
 | `DELETE` | `/api/assessments/{id}` | Tar bort en bedömning → `204 No Content` |
-| `GET` | `/health` | Hälsokontroll (inkl. databas) |
+| `GET` | `/health` | Hälsokontroll – svarar utan att röra databasen |
+| `GET` | `/health/ready` | Hälsokontroll inklusive databasanslutning |
 
-Ogiltiga requests ger `400` med valideringsfel enligt RFC 7807. Swagger UI finns på `/swagger` i utvecklingsläge, och `Nis2.Api.http` innehåller färdiga anrop för Visual Studio/VS Code.
+Ogiltiga requests ger `400` med valideringsfel enligt RFC 7807. API:t är publikt, så `/api/assessments` begränsas till 30 anrop per minut och klient-IP (`429 Too Many Requests`), och request-bodies över 16 kB avvisas (`413`). Swagger UI finns på `/swagger` i utvecklingsläge, och `Nis2.Api.http` innehåller färdiga anrop för Visual Studio/VS Code.
 
 ## Kom igång
 
@@ -109,17 +114,44 @@ cp .env.example .env.local          # innehåller VITE_API_URL=http://localhost:
 npm run dev
 ```
 
+## Driftsättning
+
+API:t körs på **Azure App Service** och data lagras i **Azure SQL Database**. Allt ligger i resursgruppen `rg-nis2-demo` (Sweden Central) och är valt för att kosta 0 kr:
+
+| Resurs | Nivå | Varför den är gratis |
+|---|---|---|
+| App Service (Linux, .NET 10) | F1 Free | 60 CPU-minuter per dag. Appen somnar när den inte används, så första anropet efter en stund tar några sekunder. |
+| Azure SQL Database (serverless) | Gratiserbjudandet | 100 000 vCore-sekunder och 32 GB per månad. Databasen pausar efter en timmes inaktivitet, och om gratiskvoten tar slut pausas den resten av månaden i stället för att debitera. |
+| Budget | 50 kr/månad | E-postvarning vid 50 % och 100 % av budgeten, och när prognosen pekar mot att den överskrids. |
+
+**Pipeline.** Jobbet `deploy-api` i [`ci.yml`](.github/workflows/ci.yml) körs vid push till `main` som rör `server/`, och först när backend-testerna gått igenom. Det publicerar API:t, driftsätter till App Service och avslutar med ett röktest mot `/health/ready`.
+
+**Inga lösenord någonstans.**
+- *GitHub → Azure:* inloggningen sker med OIDC. GitHub utfärdar en kortlivad token som Azure litar på via en federerad identitet, som bara godtar jobb i miljön `production` i det här repot. Identiteten har rollen *Website Contributor* på enbart webbappen.
+- *API → databas:* webbappen har en systemtilldelad managed identity och loggar in i Azure SQL med Microsoft Entra ID (`Authentication=Active Directory Managed Identity`). SQL-servern tillåter bara Entra-inloggning, så det finns inget SQL-lösenord. Databasanvändaren har bara rollerna `db_datareader`, `db_datawriter` och `db_ddladmin` (den sista behövs för att migreringarna ska kunna köras vid start).
+
+**Konfiguration** ligger som app settings i App Service, inte i repot: `Database__Provider=SqlServer`, `ConnectionStrings__Default` (utan hemligheter), `Cors__AllowedOrigins__0` (Vercel-adressen) och `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`, så att rate limitingen ser klientens riktiga IP bakom App Services proxy. App Service använder `/health` som hälsokontroll; den rör medvetet inte databasen, eftersom en kontroll varje minut annars skulle hålla serverless-databasen vaken dygnet runt och förbruka gratiskvoten.
+
+**Migreringar.** EF Core-migreringar är knutna till en databasprovider, så det finns en uppsättning per provider (`Data/Migrations/Sqlite` och `Data/Migrations/SqlServer`). Efter en modelländring skapas båda:
+
+```bash
+cd server
+dotnet tool restore
+dotnet ef migrations add <Namn> --project src/Nis2.Api --context SqliteAppDbContext --output-dir Data/Migrations/Sqlite
+dotnet ef migrations add <Namn> --project src/Nis2.Api --context SqlServerAppDbContext --output-dir Data/Migrations/SqlServer
+```
+
 ## Avgränsningar
 
 Verktyget är en prototyp framtagen som examensarbete. Bedömningen är förenklad (t.ex. omfattas vissa verksamheter oavsett storlek enligt MCFFS 2026:1) och ersätter inte juridisk eller teknisk rådgivning.
 
-Delning bygger på svårgissade länkar (GUID) och har ingen inloggning – den som har länken kan läsa och uppdatera bedömningen. För produktion behövs autentisering, och SQLite bör bytas mot t.ex. SQL Server eller Azure SQL (byte av EF Core-provider och en ny migrering).
+Delning bygger på svårgissade länkar (GUID) och har ingen inloggning – den som har länken kan läsa och uppdatera bedömningen. För verklig produktion behövs autentisering.
 
 ## Vidareutveckling
 
 - [x] Backend i ASP.NET Core med EF Core för att spara och dela bedömningar
 - [ ] Inloggning och behörighetsstyrning för delade bedömningar
-- [ ] Driftsättning av API:t i Azure (App Service + Azure SQL)
+- [x] Driftsättning av API:t i Azure (App Service + Azure SQL)
 - [ ] Export av resultat till PDF
 - [ ] Koppling till IEC 62443 för OT-miljöer
 - [ ] Användartester med riktiga organisationer
