@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Nis2.Api;
 using Nis2.Api.Data;
 using Nis2.Api.Services;
 
@@ -11,7 +12,9 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 
 builder.Services.AddControllers();
+builder.Services.AddApiRateLimiting(builder.Configuration);
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<BadHttpRequestExceptionHandler>();
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>(tags: ["db"]);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,6 +43,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(FrontendCors);
+app.UseRateLimiter();
 
 app.MapControllers();
 // /health svarar utan att röra databasen. App Service pingar den varje minut, och en databaskoll

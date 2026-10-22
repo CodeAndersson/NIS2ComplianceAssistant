@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Nis2.Api.Contracts;
 using Nis2.Api.Services;
 
@@ -7,8 +8,13 @@ namespace Nis2.Api.Controllers;
 [ApiController]
 [Route("api/assessments")]
 [Produces("application/json")]
+[EnableRateLimiting(RateLimiting.PerClientPolicy)]
+[RequestSizeLimit(MaxRequestBodyBytes)]
 public class AssessmentsController(IAssessmentService service) : ControllerBase
 {
+    /// <summary>En hel bedömning med alla svar är ett par kB. Allt mycket större avvisas direkt.</summary>
+    public const int MaxRequestBodyBytes = 16 * 1024;
+
     [HttpGet("{id:guid}")]
     [ProducesResponseType<AssessmentResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

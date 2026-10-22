@@ -21,6 +21,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Testing");
         builder.UseSetting("Database:MigrateOnStartup", "true");
         builder.UseSetting("Cors:AllowedOrigins:0", AllowedOrigin);
+        // Alla testanrop kommer från samma "klient", så gränsen höjs här. RateLimitTests sänker den igen.
+        builder.UseSetting("RateLimiting:PermitLimit", "10000");
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<DbContextOptions<SqliteAppDbContext>>();
