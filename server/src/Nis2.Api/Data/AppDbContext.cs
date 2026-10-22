@@ -3,7 +3,12 @@ using Nis2.Api.Domain;
 
 namespace Nis2.Api.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+/// <summary>
+/// Datamodellen, gemensam för alla databaser. Migrationer är provider-specifika, så varje databas
+/// har en egen subklass (<see cref="SqliteAppDbContext"/>, <see cref="SqlServerAppDbContext"/>)
+/// med egna migrationer. Resten av appen beror bara på den här klassen.
+/// </summary>
+public abstract class AppDbContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<Assessment> Assessments => Set<Assessment>();
 

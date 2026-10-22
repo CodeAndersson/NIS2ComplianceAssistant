@@ -20,8 +20,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Database:MigrateOnStartup", "true");
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<DbContextOptions<AppDbContext>>();
-            services.AddDbContext<AppDbContext>(o => o.UseSqlite(_connection));
+            services.RemoveAll<DbContextOptions<SqliteAppDbContext>>();
+            services.AddDbContext<AppDbContext, SqliteAppDbContext>(o => o.UseSqlite(_connection));
         });
     }
 
