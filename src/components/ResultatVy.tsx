@@ -46,8 +46,19 @@ export default function ResultatVy({ svar, omfattning, onStartOm, delningsId, se
         </div>
       </div>
 
-      {API_URL && (
+      {API_URL ? (
         <DelaPanel omfattning={omfattning} svar={svar} delningsId={delningsId} setDelningsId={setDelningsId} />
+      ) : (
+        <div className="card" style={{ padding: '1.25rem 1.5rem', marginBottom: '3rem' }}>
+          <div className="smallcaps" style={{ color: 'var(--ink-mute)', marginBottom: '0.5rem' }}>Spara och dela</div>
+          <p style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', lineHeight: 1.5, margin: 0, maxWidth: '65ch' }}>
+            I den här demon stannar bedömningen i din webbläsare. Delning via länk kräver backend-API:t
+            (ASP.NET Core + EF Core), som inte är driftsatt här – se{' '}
+            <a href="https://github.com/CodeAndersson/NIS2ComplianceAssistant#med-backend-spara-och-dela"
+               style={{ color: 'var(--accent)' }} target="_blank" rel="noreferrer">README</a>{' '}
+            för hur du kör det lokalt.
+          </p>
+        </div>
       )}
 
       <h3 className="display" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Mognad per säkerhetsåtgärdsområde</h3>
