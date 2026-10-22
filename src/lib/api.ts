@@ -44,6 +44,11 @@ export function franResponse(r: BedomningsResponse): { omfattning: Omfattning; s
 }
 
 async function anrop<T>(fetcher: typeof fetch, url: string, init?: RequestInit): Promise<T> {
+  const res = await skicka(fetcher, url, init);
+  return res.json() as Promise<T>;
+}
+
+async function skicka(fetcher: typeof fetch, url: string, init?: RequestInit): Promise<Response> {
   const res = await fetcher(url, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
@@ -51,7 +56,7 @@ async function anrop<T>(fetcher: typeof fetch, url: string, init?: RequestInit):
   if (!res.ok) {
     throw new ApiFel(res.status, res.status === 404 ? 'Bedömningen hittades inte.' : `Servern svarade med fel (${res.status}).`);
   }
-  return res.json() as Promise<T>;
+  return res;
 }
 
 /** Skapar en ny bedömning på servern, eller uppdaterar den om ett id redan finns. */
@@ -72,6 +77,15 @@ export function hamtaBedomning(
 ): Promise<BedomningsResponse> {
   if (!baseUrl) throw new Error('Inget API är konfigurerat (VITE_API_URL).');
   return anrop(fetcher, `${baseUrl}/api/assessments/${id}`);
+}
+
+/** Tar bort en delad bedömning från servern. Den lokala kopian i webbläsaren påverkas inte. */
+export async function taBortBedomning(
+  id: string,
+  { baseUrl = API_URL, fetcher = fetch }: { baseUrl?: string; fetcher?: typeof fetch } = {},
+): Promise<void> {
+  if (!baseUrl) throw new Error('Inget API är konfigurerat (VITE_API_URL).');
+  await skicka(fetcher, `${baseUrl}/api/assessments/${id}`, { method: 'DELETE' });
 }
 
 export function delningslank(id: string, location: Pick<Location, 'origin' | 'pathname'> = window.location): string {

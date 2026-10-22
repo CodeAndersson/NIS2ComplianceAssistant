@@ -11,7 +11,7 @@ interface Props {
   omfattning: Omfattning;
   onStartOm: () => void;
   delningsId: string | null;
-  setDelningsId: (id: string) => void;
+  setDelningsId: (id: string | null) => void;
 }
 
 export default function ResultatVy({ svar, omfattning, onStartOm, delningsId, setDelningsId }: Props) {

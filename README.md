@@ -20,9 +20,9 @@ De NIS2-verktyg som finns på marknaden är internationella, hänvisar inte till
 2. **Gap-analys** – 36 frågor fördelade på lagens tio säkerhetsåtgärdsområden (2 kap. 1 §), var och en kopplad till NIS2 art. 21.2 och ISO 27001:2022.
 3. **Resultat och roadmap** – mognad per område och en prioriterad åtgärdsplan grupperad efter typ av insats: policy (0–4 veckor), process (1–3 månader) och teknik (3–12 månader).
 
-4. **Spara och dela** *(valfritt)* – med backend igång kan bedömningen sparas på servern och delas via en länk, t.ex. med ledningsgruppen.
+4. **Spara och dela** *(valfritt)* – med backend igång kan bedömningen sparas på servern och delas via en länk, t.ex. med ledningsgruppen. Den kan tas bort från servern igen med ett klick.
 
-Svaren sparas automatiskt i webbläsaren (localStorage) så att man kan fortsätta senare. Inget skickas till servern förrän användaren själv väljer att dela.
+**Lokalt först.** En gap-analys är i praktiken en karta över verksamhetens säkerhetsluckor, så svaren sparas som standard bara i webbläsaren (localStorage). Inget skickas till servern förrän användaren själv väljer att dela.
 
 | Omfattningsbedömning | Gap-analys | Resultat | Dela |
 |---|---|---|---|

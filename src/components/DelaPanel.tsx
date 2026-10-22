@@ -1,15 +1,20 @@
 import { useState } from 'react';
-import { sparaBedomning, tillRequest, delningslank } from '../lib/api';
+import { sparaBedomning, taBortBedomning, tillRequest, delningslank } from '../lib/api';
 import type { Omfattning, Svarsmap } from '../types';
 
 interface Props {
   omfattning: Omfattning;
   svar: Svarsmap;
   delningsId: string | null;
-  setDelningsId: (id: string) => void;
+  setDelningsId: (id: string | null) => void;
 }
 
-type Status = { typ: 'vilar' } | { typ: 'sparar' } | { typ: 'klar' } | { typ: 'fel'; meddelande: string };
+type Status =
+  | { typ: 'vilar' }
+  | { typ: 'sparar' }
+  | { typ: 'klar' }
+  | { typ: 'borttagen' }
+  | { typ: 'fel'; meddelande: string };
 
 /** Sparar bedömningen på servern och visar en länk som kan delas med kollegor. */
 export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId }: Props) {
@@ -22,6 +27,18 @@ export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId 
       const svarFranServer = await sparaBedomning(tillRequest(omfattning, svar), delningsId);
       setDelningsId(svarFranServer.id);
       setStatus({ typ: 'klar' });
+    } catch (e) {
+      setStatus({ typ: 'fel', meddelande: e instanceof Error ? e.message : 'Något gick fel.' });
+    }
+  };
+
+  const taBort = async () => {
+    if (!delningsId) return;
+    setStatus({ typ: 'sparar' });
+    try {
+      await taBortBedomning(delningsId);
+      setDelningsId(null);
+      setStatus({ typ: 'borttagen' });
     } catch (e) {
       setStatus({ typ: 'fel', meddelande: e instanceof Error ? e.message : 'Något gick fel.' });
     }
@@ -43,8 +60,9 @@ export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId 
     <div className="card" style={{ padding: '1.5rem', marginBottom: '3rem' }}>
       <div className="smallcaps" style={{ color: 'var(--ink-mute)', marginBottom: '0.5rem' }}>Spara och dela</div>
       <p style={{ color: 'var(--ink-soft)', fontSize: '0.92rem', lineHeight: 1.5, marginBottom: '1rem', maxWidth: '60ch' }}>
-        Spara bedömningen på servern för att få en länk som du kan dela med t.ex. ledningsgruppen.
-        Bara den som har länken kan öppna bedömningen.
+        Som standard stannar bedömningen i din webbläsare. Vill du dela den med t.ex. ledningsgruppen kan du
+        spara den på servern och få en länk. Tänk på att bedömningen visar verksamhetens säkerhetsluckor —
+        dela länken bara med personer du litar på, och ta bort den från servern när den inte behövs längre.
       </p>
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <button className="btn-primary" onClick={spara} disabled={status.typ === 'sparar'}>
@@ -54,9 +72,15 @@ export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId 
           <>
             <code className="mono" data-testid="delningslank" style={{ fontSize: '0.8rem', wordBreak: 'break-all' }}>{lank}</code>
             <button className="btn-ghost" onClick={() => kopiera(lank)}>{kopierad ? 'Kopierad!' : 'Kopiera länk'}</button>
+            <button className="btn-ghost" onClick={taBort} disabled={status.typ === 'sparar'}>Ta bort från servern</button>
           </>
         )}
       </div>
+      {status.typ === 'borttagen' && (
+        <p role="status" style={{ color: 'var(--ink-soft)', fontSize: '0.88rem', marginTop: '0.75rem' }}>
+          Bedömningen är borttagen från servern. Länken fungerar inte längre — din lokala kopia finns kvar.
+        </p>
+      )}
       {status.typ === 'fel' && (
         <p role="alert" style={{ color: 'var(--danger)', fontSize: '0.88rem', marginTop: '0.75rem' }}>{status.meddelande}</p>
       )}

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { sparaBedomning, hamtaBedomning, tillRequest, franResponse, arGiltigtId, delningslank, ApiFel, type BedomningsResponse } from '../api';
+import { sparaBedomning, hamtaBedomning, taBortBedomning, tillRequest, franResponse, arGiltigtId, delningslank, ApiFel, type BedomningsResponse } from '../api';
 
 const svar: BedomningsResponse = {
   id: '3f2b6c1e-8a4d-4f7e-9b1a-2c3d4e5f6a7b',
@@ -35,6 +35,12 @@ describe('api', () => {
     expect(fel).toBeInstanceOf(ApiFel);
     expect(fel.status).toBe(404);
     expect(fel.message).toBe('Bedömningen hittades inte.');
+  });
+
+  it('tar bort med DELETE och klarar ett tomt 204-svar', async () => {
+    const fetcher = vi.fn(async () => new Response(null, { status: 204 })) as unknown as typeof fetch & ReturnType<typeof vi.fn>;
+    await expect(taBortBedomning(svar.id, { baseUrl: 'http://api', fetcher })).resolves.toBeUndefined();
+    expect(fetcher.mock.calls[0]).toEqual([`http://api/api/assessments/${svar.id}`, expect.objectContaining({ method: 'DELETE' })]);
   });
 
   it('validerar id:n och bygger delningslänkar', () => {
