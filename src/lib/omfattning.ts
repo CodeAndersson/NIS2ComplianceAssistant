@@ -1,10 +1,11 @@
-import { SEKTORER_BILAGA_1 } from '../data/sektorer.js';
+import { SEKTORER_BILAGA_1 } from '../data/sektorer';
+import type { Bedomning, Omfattning } from '../types';
 
 /**
  * Preliminär bedömning av om en verksamhet omfattas av cybersäkerhetslagen
  * och i så fall som väsentlig eller viktig verksamhetsutövare.
  */
-export function bedomOmfattning({ sektor, anstallda, omsattning }) {
+export function bedomOmfattning({ sektor, anstallda, omsattning }: Omfattning): Bedomning {
   if (!sektor || sektor === 'ingen') {
     return { status: 'ej-omfattad', kategori: null,
       forklaring: 'Verksamheten tillhör ingen av sektorerna i bilaga 1 eller 2 till NIS2-direktivet.' };

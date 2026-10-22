@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bedomOmfattning } from '../omfattning.js';
+import { bedomOmfattning } from '../omfattning';
 
 describe('bedomOmfattning', () => {
   it('ger ej omfattad när ingen sektor är vald', () => {

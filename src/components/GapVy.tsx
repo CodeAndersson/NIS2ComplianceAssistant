@@ -1,9 +1,23 @@
 import { useState } from 'react';
-import { OMRADEN } from '../data/omraden.js';
-import { SVARSTYP } from '../lib/score.js';
+import { OMRADEN } from '../data/omraden';
+import { SVARSTYP } from '../lib/score';
+import type { Svarsmap, Svarstyp } from '../types';
 
-export default function GapVy({ svar, setSvar, onKlar, onTillbaka }) {
-  const [oppet, setOppet] = useState(1);
+interface Props {
+  svar: Svarsmap;
+  setSvar: (svar: Svarsmap) => void;
+  onKlar: () => void;
+  onTillbaka: () => void;
+}
+
+const SVARSALTERNATIV: { val: Svarstyp; label: string }[] = [
+  { val: SVARSTYP.JA, label: 'Ja' },
+  { val: SVARSTYP.DELVIS, label: 'Delvis' },
+  { val: SVARSTYP.NEJ, label: 'Nej' },
+];
+
+export default function GapVy({ svar, setSvar, onKlar, onTillbaka }: Props) {
+  const [oppet, setOppet] = useState<number | null>(1);
   const totalt = OMRADEN.reduce((s, o) => s + o.fragor.length, 0);
   const besvarade = Object.keys(svar).length;
   const procent = (besvarade / totalt) * 100;
@@ -72,11 +86,7 @@ export default function GapVy({ svar, setSvar, onKlar, onTillbaka }) {
                         <p style={{ flex: 1, fontSize: '0.95rem', lineHeight: '1.5' }}>{fraga.text}</p>
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem', paddingLeft: '2rem' }}>
-                        {[
-                          { val: SVARSTYP.JA, label: 'Ja' },
-                          { val: SVARSTYP.DELVIS, label: 'Delvis' },
-                          { val: SVARSTYP.NEJ, label: 'Nej' }
-                        ].map(opt => (
+                        {SVARSALTERNATIV.map(opt => (
                           <button key={opt.val}
                                   className={`answer-pill ${svar[fraga.id] === opt.val ? 'selected-' + opt.val : ''}`}
                                   onClick={() => setSvar({ ...svar, [fraga.id]: opt.val })}>

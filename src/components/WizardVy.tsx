@@ -1,8 +1,28 @@
-import { SEKTORER_BILAGA_1, SEKTORER_BILAGA_2, SEKTOR_MYNDIGHET } from '../data/sektorer.js';
-import { bedomOmfattning } from '../lib/omfattning.js';
+import { SEKTORER_BILAGA_1, SEKTORER_BILAGA_2, SEKTOR_MYNDIGHET } from '../data/sektorer';
+import { bedomOmfattning } from '../lib/omfattning';
+import type { Anstallda, Omfattning, Omsattning } from '../types';
 
-export default function WizardVy({ omfattning, setOmfattning, onNasta, onTillbaka }) {
-  const klar = omfattning.sektor && omfattning.anstallda && omfattning.omsattning;
+interface Props {
+  omfattning: Omfattning;
+  setOmfattning: (omfattning: Omfattning) => void;
+  onNasta: () => void;
+  onTillbaka: () => void;
+}
+
+const ANSTALLDA_VAL: { val: Anstallda; label: string }[] = [
+  { val: 'under-50', label: 'Färre än 50' },
+  { val: '50-249', label: '50 – 249' },
+  { val: '250+', label: '250 eller fler' },
+];
+
+const OMSATTNING_VAL: { val: Omsattning; label: string }[] = [
+  { val: 'under-10', label: 'Under 10 MEUR' },
+  { val: '10-50', label: '10 – 50 MEUR' },
+  { val: '50+', label: 'Över 50 MEUR' },
+];
+
+export default function WizardVy({ omfattning, setOmfattning, onNasta, onTillbaka }: Props) {
+  const klar = Boolean(omfattning.sektor && omfattning.anstallda && omfattning.omsattning);
   const bedomning = klar ? bedomOmfattning(omfattning) : null;
 
   return (
@@ -38,11 +58,7 @@ export default function WizardVy({ omfattning, setOmfattning, onNasta, onTillbak
           Antal anställda
         </label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-          {[
-            { val: 'under-50', label: 'Färre än 50' },
-            { val: '50-249', label: '50 – 249' },
-            { val: '250+', label: '250 eller fler' }
-          ].map(o => (
+          {ANSTALLDA_VAL.map(o => (
             <label key={o.val} className={`field-radio ${omfattning.anstallda === o.val ? 'selected' : ''}`}>
               <input type="radio" checked={omfattning.anstallda === o.val} onChange={() => setOmfattning({ ...omfattning, anstallda: o.val })} />
               <span>{o.label}</span>
@@ -56,11 +72,7 @@ export default function WizardVy({ omfattning, setOmfattning, onNasta, onTillbak
           Årsomsättning
         </label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-          {[
-            { val: 'under-10', label: 'Under 10 MEUR' },
-            { val: '10-50', label: '10 – 50 MEUR' },
-            { val: '50+', label: 'Över 50 MEUR' }
-          ].map(o => (
+          {OMSATTNING_VAL.map(o => (
             <label key={o.val} className={`field-radio ${omfattning.omsattning === o.val ? 'selected' : ''}`}>
               <input type="radio" checked={omfattning.omsattning === o.val} onChange={() => setOmfattning({ ...omfattning, omsattning: o.val })} />
               <span>{o.label}</span>

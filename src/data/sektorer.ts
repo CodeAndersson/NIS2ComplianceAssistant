@@ -1,12 +1,12 @@
 // Sektorer enligt bilaga 1 och 2 till NIS2-direktivet samt behöriga tillsynsmyndigheter
 
-export const SEKTORER_BILAGA_1 = [
+export const SEKTORER_BILAGA_1: readonly string[] = [
   'Energi', 'Transport', 'Bank- och finansmarknad', 'Hälso- och sjukvård',
   'Dricksvatten', 'Avloppsvatten', 'Digital infrastruktur',
   'IKT-tjänsteförvaltning (B2B)', 'Offentlig förvaltning', 'Rymd'
 ];
 
-export const SEKTORER_BILAGA_2 = [
+export const SEKTORER_BILAGA_2: readonly string[] = [
   'Post- och budtjänster', 'Avfallshantering',
   'Tillverkning, produktion och distribution av kemikalier',
   'Produktion, bearbetning och distribution av livsmedel',
@@ -15,7 +15,12 @@ export const SEKTORER_BILAGA_2 = [
 
 // Mappning sektor → behörig sektorsmyndighet enligt cybersäkerhetsförordningen (2025:1507)
 // MCF har samordnande roll; sektorsmyndigheter utövar faktisk tillsyn
-export const SEKTOR_MYNDIGHET = {
+export interface Tillsynsmyndighet {
+  myndighet: string;
+  webb: string;
+}
+
+export const SEKTOR_MYNDIGHET: Record<string, Tillsynsmyndighet> = {
   'Energi':                                                  { myndighet: 'Energimyndigheten',         webb: 'energimyndigheten.se' },
   'Transport':                                               { myndighet: 'Transportstyrelsen',        webb: 'transportstyrelsen.se' },
   'Bank- och finansmarknad':                                 { myndighet: 'Finansinspektionen',        webb: 'fi.se' },

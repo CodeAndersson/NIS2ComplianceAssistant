@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { laddaTillstand, sparaTillstand, rensaTillstand, TOMT_TILLSTAND } from '../lib/lagring.js';
+import { laddaTillstand, sparaTillstand, rensaTillstand, TOMT_TILLSTAND, type Lagring } from '../lib/lagring';
+import type { Tillstand } from '../types';
 
-function hamtaStorage() {
+function hamtaStorage(): Lagring | undefined {
   try {
     return typeof window !== 'undefined' ? window.localStorage : undefined;
   } catch {
@@ -11,13 +12,14 @@ function hamtaStorage() {
 
 /** Håller bedömningens tillstånd och sparar det automatiskt i localStorage. */
 export function useSparadBedomning() {
-  const [tillstand, setTillstand] = useState(() => laddaTillstand(hamtaStorage()));
+  const [tillstand, setTillstand] = useState<Tillstand>(() => laddaTillstand(hamtaStorage()));
 
   useEffect(() => {
     sparaTillstand(hamtaStorage(), tillstand);
   }, [tillstand]);
 
-  const uppdatera = falt => varde => setTillstand(t => ({ ...t, [falt]: varde }));
+  const uppdatera = <K extends keyof Tillstand>(falt: K) => (varde: Tillstand[K]) =>
+    setTillstand(t => ({ ...t, [falt]: varde }));
 
   return {
     ...tillstand,

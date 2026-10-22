@@ -1,9 +1,16 @@
 import { useMemo } from 'react';
-import { KATEGORIER } from '../data/omraden.js';
-import { bedomOmfattning } from '../lib/omfattning.js';
-import { beraknaScore, totalMognad, prioriteradeLuckor } from '../lib/score.js';
+import { KATEGORIER } from '../data/omraden';
+import { bedomOmfattning } from '../lib/omfattning';
+import { beraknaScore, totalMognad, prioriteradeLuckor } from '../lib/score';
+import type { Atgardstyp, Omfattning, Svarsmap } from '../types';
 
-export default function ResultatVy({ svar, omfattning, onStartOm }) {
+interface Props {
+  svar: Svarsmap;
+  omfattning: Omfattning;
+  onStartOm: () => void;
+}
+
+export default function ResultatVy({ svar, omfattning, onStartOm }: Props) {
   const resultat = useMemo(() => beraknaScore(svar), [svar]);
   const totalScore = totalMognad(resultat);
   const bedomning = bedomOmfattning(omfattning);
@@ -60,7 +67,7 @@ export default function ResultatVy({ svar, omfattning, onStartOm }) {
             Policy-arbete kräver framförallt dokumentation och kan starta direkt; tekniska kontroller
             kräver upphandling och utrullning.
           </p>
-          {Object.entries(KATEGORIER).map(([nyckel, kat]) => {
+          {(Object.entries(KATEGORIER) as [Atgardstyp, (typeof KATEGORIER)[Atgardstyp]][]).map(([nyckel, kat]) => {
             const items = prioriterade.filter(p => p.kategori === nyckel);
             if (items.length === 0) return null;
             return (

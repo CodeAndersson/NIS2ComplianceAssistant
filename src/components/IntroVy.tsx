@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { INCIDENT_FRISTER } from '../data/incidentfrister.js';
+import { INCIDENT_FRISTER } from '../data/incidentfrister';
 
-export default function IntroVy({ onStart }) {
+export default function IntroVy({ onStart }: { onStart: () => void }) {
   const [visaKallor, setVisaKallor] = useState(false);
 
   return (

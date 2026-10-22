@@ -1,19 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { laddaTillstand, sparaTillstand, rensaTillstand, LAGRINGSNYCKEL, TOMT_TILLSTAND } from '../lagring.js';
+import { laddaTillstand, sparaTillstand, rensaTillstand, LAGRINGSNYCKEL, TOMT_TILLSTAND, type Lagring } from '../lagring';
+import type { Tillstand } from '../../types';
 
-function minnesLagring(initial = {}) {
-  const data = { ...initial };
+function minnesLagring(initial: Record<string, string> = {}): Lagring {
+  const data: Record<string, string> = { ...initial };
   return {
-    getItem: k => (k in data ? data[k] : null),
-    setItem: (k, v) => { data[k] = String(v); },
-    removeItem: k => { delete data[k]; },
+    getItem: (k: string) => (k in data ? data[k] : null),
+    setItem: (k: string, v: string) => { data[k] = String(v); },
+    removeItem: (k: string) => { delete data[k]; },
   };
 }
 
 describe('lagring', () => {
   it('sparar och läser tillbaka en bedömning', () => {
     const storage = minnesLagring();
-    const tillstand = { vy: 'gap', omfattning: { sektor: 'Energi', anstallda: '250+', omsattning: '50+' }, svar: { '1.1': 'ja' } };
+    const tillstand: Tillstand = { vy: 'gap', omfattning: { sektor: 'Energi', anstallda: '250+', omsattning: '50+' }, svar: { '1.1': 'ja' } };
     sparaTillstand(storage, tillstand);
     expect(laddaTillstand(storage)).toEqual(tillstand);
   });
@@ -33,7 +34,7 @@ describe('lagring', () => {
   });
 
   it('kraschar inte när lagringen inte är tillgänglig', () => {
-    const trasig = { getItem: () => { throw new Error('blockerad'); }, setItem: () => { throw new Error('full'); }, removeItem: () => { throw new Error(); } };
+    const trasig: Lagring = { getItem: () => { throw new Error('blockerad'); }, setItem: () => { throw new Error('full'); }, removeItem: () => { throw new Error(); } };
     expect(laddaTillstand(trasig)).toEqual(TOMT_TILLSTAND);
     expect(() => sparaTillstand(trasig, TOMT_TILLSTAND)).not.toThrow();
     expect(() => rensaTillstand(trasig)).not.toThrow();

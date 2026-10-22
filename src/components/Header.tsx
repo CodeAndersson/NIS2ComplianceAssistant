@@ -1,5 +1,12 @@
 
-export default function Header({ vy, gaTillStart }) {
+import type { Vy } from '../types';
+
+interface Props {
+  vy: Vy;
+  gaTillStart: () => void;
+}
+
+export default function Header({ vy, gaTillStart }: Props) {
   return (
     <header style={{ borderBottom: '1px solid var(--rule)', background: 'var(--bg)' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.25rem 2rem',

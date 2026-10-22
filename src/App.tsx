@@ -1,9 +1,9 @@
-import Header from './components/Header.jsx';
-import IntroVy from './components/IntroVy.jsx';
-import WizardVy from './components/WizardVy.jsx';
-import GapVy from './components/GapVy.jsx';
-import ResultatVy from './components/ResultatVy.jsx';
-import { useSparadBedomning } from './hooks/useSparadBedomning.js';
+import Header from './components/Header';
+import IntroVy from './components/IntroVy';
+import WizardVy from './components/WizardVy';
+import GapVy from './components/GapVy';
+import ResultatVy from './components/ResultatVy';
+import { useSparadBedomning } from './hooks/useSparadBedomning';
 import './styles/app.css';
 
 export default function App() {

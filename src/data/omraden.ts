@@ -1,12 +1,14 @@
+import type { Atgardstyp, Omrade } from '../types';
+
 // Säkerhetsåtgärdsområden — Cybersäkerhetslagen (2025:1506) 2 kap. 1 § / NIS2 Art. 21.2
 
-export const KATEGORIER = {
+export const KATEGORIER: Record<Atgardstyp, { label: string; horisont: string }> = {
   policy:  { label: 'Policy & styrning',         horisont: 'Omedelbart · 0–4 veckor' },
   process: { label: 'Process & utbildning',      horisont: 'Kort sikt · 1–3 månader' },
   teknik:  { label: 'Teknik & infrastruktur',    horisont: 'Medellång sikt · 3–12 månader' }
 };
 
-export const OMRADEN = [
+export const OMRADEN: readonly Omrade[] = [
   {
     id: 1, nr: '01', kategori: 'policy',
     title: 'Riskanalys och informationssystemens säkerhet',

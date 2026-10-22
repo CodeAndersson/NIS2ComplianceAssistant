@@ -1,11 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { beraknaScore, totalMognad, prioriteradeLuckor } from '../score.js';
-import { OMRADEN } from '../../data/omraden.js';
+import { beraknaScore, totalMognad, prioriteradeLuckor } from '../score';
+import { OMRADEN } from '../../data/omraden';
+import type { Omrade } from '../../types';
 
-const omraden = [
-  { id: 1, kategori: 'policy', fragor: [{ id: 'a1' }, { id: 'a2' }] },
-  { id: 2, kategori: 'teknik', fragor: [{ id: 'b1' }, { id: 'b2' }, { id: 'b3' }, { id: 'b4' }] },
-];
+function omrade(id: number, fragor: string[]): Omrade {
+  return {
+    id, nr: String(id).padStart(2, '0'), kategori: 'policy', title: `Område ${id}`,
+    paragraf: '', artikel: '', iso: '', beskrivning: '',
+    fragor: fragor.map(f => ({ id: f, text: f })),
+  };
+}
+
+const omraden = [omrade(1, ['a1', 'a2']), omrade(2, ['b1', 'b2', 'b3', 'b4'])];
 
 describe('beraknaScore', () => {
   it('ger 0 % och låg nivå när inget är besvarat', () => {
