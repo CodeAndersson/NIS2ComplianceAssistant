@@ -1,0 +1,25 @@
+@host = http://localhost:5080
+
+### Skapa en bedömning
+# @name create
+POST {{host}}/api/assessments
+Content-Type: application/json
+
+{
+  "sector": "Energi",
+  "employees": "50-249",
+  "turnover": "10-50",
+  "answers": { "1.1": "ja", "1.2": "delvis", "2.1": "nej" }
+}
+
+### Hämta bedömningen
+GET {{host}}/api/assessments/{{create.response.body.$.id}}
+
+### Ogiltig request ger 400 med valideringsfel
+POST {{host}}/api/assessments
+Content-Type: application/json
+
+{ "employees": "massor", "answers": { "99.9": "kanske" } }
+
+### Hälsokontroll
+GET {{host}}/health

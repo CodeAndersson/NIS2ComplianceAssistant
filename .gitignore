@@ -3,3 +3,12 @@ dist
 .DS_Store
 *.local
 Opponentforberedelse.txt
+
+# .NET
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+.vs/
+*.user

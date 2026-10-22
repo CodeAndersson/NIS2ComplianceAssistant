@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{961B5E94-78E9-4B25-B871-F6FBB2BE190A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nis2.Api", "src\Nis2.Api\Nis2.Api.csproj", "{D7B4558F-1646-4CD6-9E9A-075EF54885FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{54976A7A-C4B0-4FA0-BEA6-AB6543492E45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nis2.Api.Tests", "tests\Nis2.Api.Tests\Nis2.Api.Tests.csproj", "{CF0B5095-57CB-4215-B3DA-BAEB0F415601}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7B4558F-1646-4CD6-9E9A-075EF54885FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7B4558F-1646-4CD6-9E9A-075EF54885FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7B4558F-1646-4CD6-9E9A-075EF54885FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7B4558F-1646-4CD6-9E9A-075EF54885FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF0B5095-57CB-4215-B3DA-BAEB0F415601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF0B5095-57CB-4215-B3DA-BAEB0F415601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF0B5095-57CB-4215-B3DA-BAEB0F415601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF0B5095-57CB-4215-B3DA-BAEB0F415601}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D7B4558F-1646-4CD6-9E9A-075EF54885FD} = {961B5E94-78E9-4B25-B871-F6FBB2BE190A}
+		{CF0B5095-57CB-4215-B3DA-BAEB0F415601} = {54976A7A-C4B0-4FA0-BEA6-AB6543492E45}
+	EndGlobalSection
+EndGlobal
