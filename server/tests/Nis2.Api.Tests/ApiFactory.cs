@@ -11,6 +11,8 @@ namespace Nis2.Api.Tests;
 /// <summary>Startar hela API:t i minnet med en SQLite-databas som bara lever under testet.</summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {
+    public const string AllowedOrigin = "https://frontend.example";
+
     private readonly SqliteConnection _connection = new("Data Source=:memory:");
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -18,6 +20,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         _connection.Open();
         builder.UseEnvironment("Testing");
         builder.UseSetting("Database:MigrateOnStartup", "true");
+        builder.UseSetting("Cors:AllowedOrigins:0", AllowedOrigin);
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<DbContextOptions<SqliteAppDbContext>>();

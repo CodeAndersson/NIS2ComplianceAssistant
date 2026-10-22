@@ -101,4 +101,26 @@ public class AssessmentsApiTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("Healthy", await response.Content.ReadAsStringAsync());
     }
+
+    [Fact]
+    public async Task Readiness_endpoint_checks_database()
+    {
+        var response = await _client.GetAsync("/health/ready");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("Healthy", await response.Content.ReadAsStringAsync());
+    }
+
+    [Theory]
+    [InlineData(ApiFactory.AllowedOrigin, true)]
+    [InlineData("https://evil.example", false)]
+    public async Task Cors_allows_only_configured_origins(string origin, bool allowed)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Options, "/api/assessments");
+        request.Headers.Add("Origin", origin);
+        request.Headers.Add("Access-Control-Request-Method", "POST");
+
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(allowed, response.Headers.Contains("Access-Control-Allow-Origin"));
+    }
 }

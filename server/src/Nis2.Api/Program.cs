@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Nis2.Api.Data;
 using Nis2.Api.Services;
@@ -11,7 +12,7 @@ builder.Services.AddScoped<IAssessmentService, AssessmentService>();
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
-builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>(tags: ["db"]);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -41,7 +42,10 @@ app.UseStatusCodePages();
 app.UseCors(FrontendCors);
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+// /health svarar utan att röra databasen. App Service pingar den varje minut, och en databaskoll
+// där skulle hålla Azure SQL serverless vaken dygnet runt. /health/ready kontrollerar databasen.
+app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = c => c.Tags.Contains("db") });
 
 app.Run();
 
