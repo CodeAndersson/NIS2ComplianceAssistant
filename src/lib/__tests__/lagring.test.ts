@@ -14,7 +14,7 @@ function minnesLagring(initial: Record<string, string> = {}): Lagring {
 describe('lagring', () => {
   it('sparar och läser tillbaka en bedömning', () => {
     const storage = minnesLagring();
-    const tillstand: Tillstand = { vy: 'gap', omfattning: { sektor: 'Energi', anstallda: '250+', omsattning: '50+' }, svar: { '1.1': 'ja' } };
+    const tillstand: Tillstand = { vy: 'gap', omfattning: { sektor: 'Energi', anstallda: '250+', omsattning: '50+' }, svar: { '1.1': 'ja' }, delningsId: null };
     sparaTillstand(storage, tillstand);
     expect(laddaTillstand(storage)).toEqual(tillstand);
   });
@@ -29,8 +29,9 @@ describe('lagring', () => {
   });
 
   it('faller tillbaka till startvyn för okänd vy', () => {
-    const storage = minnesLagring({ [LAGRINGSNYCKEL]: JSON.stringify({ vy: 'hackad', omfattning: {}, svar: {} }) });
+    const storage = minnesLagring({ [LAGRINGSNYCKEL]: JSON.stringify({ vy: 'hackad', omfattning: {}, svar: {}, delningsId: 42 }) });
     expect(laddaTillstand(storage).vy).toBe('intro');
+    expect(laddaTillstand(storage).delningsId).toBeNull();
   });
 
   it('kraschar inte när lagringen inte är tillgänglig', () => {

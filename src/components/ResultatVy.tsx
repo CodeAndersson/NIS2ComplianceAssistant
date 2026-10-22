@@ -2,15 +2,19 @@ import { useMemo } from 'react';
 import { KATEGORIER } from '../data/omraden';
 import { bedomOmfattning } from '../lib/omfattning';
 import { beraknaScore, totalMognad, prioriteradeLuckor } from '../lib/score';
+import { API_URL } from '../lib/api';
+import DelaPanel from './DelaPanel';
 import type { Atgardstyp, Omfattning, Svarsmap } from '../types';
 
 interface Props {
   svar: Svarsmap;
   omfattning: Omfattning;
   onStartOm: () => void;
+  delningsId: string | null;
+  setDelningsId: (id: string) => void;
 }
 
-export default function ResultatVy({ svar, omfattning, onStartOm }: Props) {
+export default function ResultatVy({ svar, omfattning, onStartOm, delningsId, setDelningsId }: Props) {
   const resultat = useMemo(() => beraknaScore(svar), [svar]);
   const totalScore = totalMognad(resultat);
   const bedomning = bedomOmfattning(omfattning);
@@ -41,6 +45,10 @@ export default function ResultatVy({ svar, omfattning, onStartOm }: Props) {
           <div style={{ fontSize: '0.85rem', color: 'var(--ink-soft)', marginTop: '0.5rem' }}>områden under 40 %</div>
         </div>
       </div>
+
+      {API_URL && (
+        <DelaPanel omfattning={omfattning} svar={svar} delningsId={delningsId} setDelningsId={setDelningsId} />
+      )}
 
       <h3 className="display" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Mognad per säkerhetsåtgärdsområde</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '4rem' }}>

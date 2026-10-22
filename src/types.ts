@@ -53,4 +53,6 @@ export interface Tillstand {
   vy: Vy;
   omfattning: Omfattning;
   svar: Svarsmap;
+  /** Id för en bedömning som sparats på servern, om den har delats. */
+  delningsId: string | null;
 }

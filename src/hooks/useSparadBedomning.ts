@@ -26,6 +26,9 @@ export function useSparadBedomning() {
     setVy: uppdatera('vy'),
     setOmfattning: uppdatera('omfattning'),
     setSvar: uppdatera('svar'),
+    setDelningsId: uppdatera('delningsId'),
+    /** Ersätter hela bedömningen, t.ex. när en delad bedömning hämtas från servern. */
+    laddaIn: (nytt: Tillstand) => setTillstand(nytt),
     startaOm: () => {
       rensaTillstand(hamtaStorage());
       setTillstand(TOMT_TILLSTAND);

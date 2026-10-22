@@ -13,6 +13,7 @@ export const TOMT_TILLSTAND: Tillstand = {
   vy: 'intro',
   omfattning: { sektor: null, anstallda: null, omsattning: null },
   svar: {},
+  delningsId: null,
 };
 
 function arObjekt(v: unknown): v is Record<string, unknown> {
@@ -30,6 +31,7 @@ export function laddaTillstand(storage: Lagring | undefined): Tillstand {
       vy: GILTIGA_VYER.includes(data.vy as Vy) ? (data.vy as Vy) : 'intro',
       omfattning: { ...TOMT_TILLSTAND.omfattning, ...data.omfattning },
       svar: data.svar as Tillstand['svar'],
+      delningsId: typeof data.delningsId === 'string' ? data.delningsId : null,
     };
   } catch {
     return TOMT_TILLSTAND;
