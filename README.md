@@ -4,7 +4,7 @@
 
 ![CI](https://github.com/CodeAndersson/NIS2ComplianceAssistant/actions/workflows/ci.yml/badge.svg)
 
-**Live demo:** _länk kommer_ <!-- Lägg in Vercel-länken här -->
+**Live demo:** [nis-2-compliance-assistant.vercel.app](https://nis-2-compliance-assistant.vercel.app/)
 
 ![Startsida](docs/screenshots/01-start.png)
 
