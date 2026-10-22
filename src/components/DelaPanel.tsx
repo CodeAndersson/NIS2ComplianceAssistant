@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sparaBedomning, taBortBedomning, tillRequest, delningslank } from '../lib/api';
 import type { Omfattning, Svarsmap } from '../types';
 
@@ -20,6 +20,18 @@ type Status =
 export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId }: Props) {
   const [status, setStatus] = useState<Status>({ typ: 'vilar' });
   const [kopierad, setKopierad] = useState(false);
+  const [langsam, setLangsam] = useState(false);
+
+  // Servern och databasen sover när ingen använt dem på ett tag (gratisnivåerna i Azure).
+  // Första anropet kan då ta en stund, så efter två sekunder förklarar vi varför.
+  useEffect(() => {
+    if (status.typ !== 'sparar') {
+      setLangsam(false);
+      return;
+    }
+    const timer = setTimeout(() => setLangsam(true), 2000);
+    return () => clearTimeout(timer);
+  }, [status.typ]);
 
   const spara = async () => {
     setStatus({ typ: 'sparar' });
@@ -66,7 +78,7 @@ export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId 
       </p>
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <button className="btn-primary" onClick={spara} disabled={status.typ === 'sparar'}>
-          {status.typ === 'sparar' ? 'Sparar …' : delningsId ? 'Uppdatera sparad bedömning' : 'Spara och skapa länk'}
+          {status.typ === 'sparar' ? (langsam ? 'Sparar … (servern vaknar)' : 'Sparar …') : delningsId ? 'Uppdatera sparad bedömning' : 'Spara och skapa länk'}
         </button>
         {lank && (
           <>
@@ -76,6 +88,11 @@ export default function DelaPanel({ omfattning, svar, delningsId, setDelningsId 
           </>
         )}
       </div>
+      {langsam && (
+        <p role="status" style={{ color: 'var(--ink-soft)', fontSize: '0.88rem', marginTop: '0.75rem' }}>
+          Servern har vilat och startar om — det kan ta upp till en minut första gången.
+        </p>
+      )}
       {status.typ === 'borttagen' && (
         <p role="status" style={{ color: 'var(--ink-soft)', fontSize: '0.88rem', marginTop: '0.75rem' }}>
           Bedömningen är borttagen från servern. Länken fungerar inte längre — din lokala kopia finns kvar.

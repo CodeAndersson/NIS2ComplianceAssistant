@@ -43,6 +43,12 @@ export function franResponse(r: BedomningsResponse): { omfattning: Omfattning; s
   };
 }
 
+function felmeddelande(status: number): string {
+  if (status === 404) return 'Bedömningen hittades inte.';
+  if (status === 429) return 'För många förfrågningar på kort tid. Vänta en minut och försök igen.';
+  return `Servern svarade med fel (${status}).`;
+}
+
 async function anrop<T>(fetcher: typeof fetch, url: string, init?: RequestInit): Promise<T> {
   const res = await skicka(fetcher, url, init);
   return res.json() as Promise<T>;
@@ -53,9 +59,7 @@ async function skicka(fetcher: typeof fetch, url: string, init?: RequestInit): P
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   });
-  if (!res.ok) {
-    throw new ApiFel(res.status, res.status === 404 ? 'Bedömningen hittades inte.' : `Servern svarade med fel (${res.status}).`);
-  }
+  if (!res.ok) throw new ApiFel(res.status, felmeddelande(res.status));
   return res;
 }
 

@@ -37,6 +37,12 @@ describe('api', () => {
     expect(fel.message).toBe('Bedömningen hittades inte.');
   });
 
+  it('ber användaren vänta vid 429 (rate limit)', async () => {
+    const fel = await hamtaBedomning(svar.id, { baseUrl: 'http://api', fetcher: fejkFetch(429, {}) }).catch(e => e);
+    expect(fel).toBeInstanceOf(ApiFel);
+    expect(fel.message).toMatch(/Vänta en minut/);
+  });
+
   it('tar bort med DELETE och klarar ett tomt 204-svar', async () => {
     const fetcher = vi.fn(async () => new Response(null, { status: 204 })) as unknown as typeof fetch & ReturnType<typeof vi.fn>;
     await expect(taBortBedomning(svar.id, { baseUrl: 'http://api', fetcher })).resolves.toBeUndefined();
